@@ -4,7 +4,15 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 
 import { Student } from "@/types/student";
+import { Exam } from "@/types/exam";
+
 import { getStudentById } from "@/services/studentService";
+import { getStudentExams } from "@/services/examService";
+
+import StudentInfoCard from "@/components/students/profile/StudentInfoCard";
+import StudentStatsCard from "@/components/students/profile/StudentStatsCard";
+import StudentNetChart from "@/components/students/profile/StudentNetChart";
+import StudentExamHistory from "@/components/students/profile/StudentExamHistory";
 
 export default function StudentProfilePage() {
   const { id } = useParams<{ id: string }>();
@@ -12,20 +20,29 @@ export default function StudentProfilePage() {
   const [student, setStudent] =
     useState<Student | null>(null);
 
+  const [exams, setExams] =
+    useState<Exam[]>([]);
+
   const [loading, setLoading] =
     useState(true);
 
   useEffect(() => {
     if (!id) return;
 
-    loadStudent(id);
+    loadData(id);
   }, [id]);
 
-  async function loadStudent(studentId: string) {
+  async function loadData(studentId: string) {
     try {
-      const data = await getStudentById(studentId);
+      const studentData =
+        await getStudentById(studentId);
 
-      setStudent(data);
+      setStudent(studentData);
+
+      const examData =
+        await getStudentExams(studentId);
+
+      setExams(examData);
     } catch (error) {
       console.error(error);
     } finally {
@@ -49,6 +66,23 @@ export default function StudentProfilePage() {
     );
   }
 
+  const totalExam = exams.length;
+
+  const averageNet =
+    totalExam === 0
+      ? 0
+      : exams.reduce(
+          (sum, exam) => sum + exam.totalNet,
+          0
+        ) / totalExam;
+
+  const highestNet =
+    totalExam === 0
+      ? 0
+      : Math.max(
+          ...exams.map((exam) => exam.totalNet)
+        );
+
   return (
     <>
       <h1 className="mb-8 text-4xl font-bold">
@@ -56,47 +90,26 @@ export default function StudentProfilePage() {
       </h1>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <div className="rounded-xl border bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-xl font-semibold">
-            Öğrenci Bilgileri
-          </h2>
+        <StudentInfoCard
+          phone={student.phone}
+          school={student.school}
+          className={student.className}
+          parentName={student.parentName}
+        />
 
-          <div className="space-y-3">
-            <p>
-              <strong>Telefon:</strong>{" "}
-              {student.phone}
-            </p>
+        <StudentStatsCard
+          totalExam={totalExam}
+          averageNet={averageNet}
+          highestNet={highestNet}
+        />
+      </div>
 
-            <p>
-              <strong>Okul:</strong>{" "}
-              {student.school}
-            </p>
+      <div className="mt-8">
+        <StudentNetChart exams={exams} />
+      </div>
 
-            <p>
-              <strong>Sınıf:</strong>{" "}
-              {student.className}
-            </p>
-
-            <p>
-              <strong>Veli:</strong>{" "}
-              {student.parentName}
-            </p>
-          </div>
-        </div>
-
-        <div className="rounded-xl border bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-xl font-semibold">
-            İstatistikler
-          </h2>
-
-          <div className="space-y-3">
-            <p>Toplam Deneme: 0</p>
-
-            <p>Ortalama Net: 0</p>
-
-            <p>En Yüksek Net: 0</p>
-          </div>
-        </div>
+      <div className="mt-8">
+        <StudentExamHistory exams={exams} />
       </div>
     </>
   );

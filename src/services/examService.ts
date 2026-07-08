@@ -1,13 +1,14 @@
 import {
   addDoc,
   collection,
+  deleteDoc,
   doc,
   getDocs,
   orderBy,
   query,
   serverTimestamp,
   updateDoc,
-  deleteDoc,
+  where,
 } from "firebase/firestore";
 
 import { db } from "@/lib/firebase";
@@ -25,7 +26,28 @@ export async function addExam(exam: Exam) {
 
 // Denemeleri Getir
 export async function getExams(): Promise<Exam[]> {
-  const q = query(examsRef, orderBy("createdAt", "desc"));
+  const q = query(
+    examsRef,
+    orderBy("createdAt", "desc")
+  );
+
+  const snapshot = await getDocs(q);
+
+  return snapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...(doc.data() as Omit<Exam, "id">),
+  }));
+}
+
+// Öğrenciye Ait Denemeleri Getir
+export async function getStudentExams(
+  studentId: string
+): Promise<Exam[]> {
+  const q = query(
+    examsRef,
+    where("studentId", "==", studentId),
+    orderBy("createdAt", "desc")
+  );
 
   const snapshot = await getDocs(q);
 
