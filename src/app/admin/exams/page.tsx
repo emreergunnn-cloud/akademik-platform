@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { Exam } from "@/types/exam";
@@ -13,6 +13,7 @@ import {
 import ExamDialog from "@/components/exams/ExamDialog";
 import ExamTable from "@/components/exams/ExamTable";
 import DeleteExamDialog from "@/components/exams/DeleteExamDialog";
+import ExamToolbar from "@/components/exams/ExamToolbar";
 
 export default function ExamsPage() {
   const [exams, setExams] = useState<Exam[]>([]);
@@ -26,6 +27,11 @@ export default function ExamsPage() {
 
   const [selectedExam, setSelectedExam] =
     useState<Exam | null>(null);
+
+  const [search, setSearch] = useState("");
+
+  const [examType, setExamType] =
+    useState("all");
 
   async function loadExams() {
     try {
@@ -80,19 +86,39 @@ export default function ExamsPage() {
     }
   }
 
+  const filteredExams = useMemo(() => {
+    return exams.filter((exam) => {
+      const matchesSearch =
+        exam.studentName
+          ?.toLowerCase()
+          .includes(search.toLowerCase()) ||
+        exam.examName
+          ?.toLowerCase()
+          .includes(search.toLowerCase());
+
+      const matchesType =
+        examType === "all"
+          ? true
+          : exam.examType === examType;
+
+      return matchesSearch && matchesType;
+    });
+  }, [exams, search, examType]);
+
   return (
     <>
-      <div className="mb-8 flex items-center justify-between">
-        <h1 className="text-4xl font-bold">
+      <div className="mb-8">
+        <h1 className="mb-6 text-4xl font-bold">
           Denemeler
         </h1>
 
-        <button
-          onClick={handleCreate}
-          className="rounded-lg bg-blue-600 px-5 py-3 text-white transition hover:bg-blue-700"
-        >
-          + Yeni Deneme
-        </button>
+        <ExamToolbar
+          search={search}
+          onSearchChange={setSearch}
+          examType={examType}
+          onExamTypeChange={setExamType}
+          onCreate={handleCreate}
+        />
       </div>
 
       <ExamDialog
@@ -124,7 +150,7 @@ export default function ExamsPage() {
         </div>
       ) : (
         <ExamTable
-          exams={exams}
+          exams={filteredExams}
           onEdit={handleEdit}
           onDelete={handleDelete}
         />
