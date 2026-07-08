@@ -1,153 +1,92 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-
-import { toast } from "sonner";
-
-import StudentDialog from "@/components/students/StudentDialog";
-import StudentTable from "@/components/students/StudentTable";
-import DeleteStudentDialog from "@/components/students/DeleteStudentDialog";
-import StudentToolbar from "@/components/students/StudentToolbar";
+import { useEffect, useState } from "react";
 
 import {
-  deleteStudent,
-  getStudents,
-} from "@/services/studentService";
+  Users,
+  ClipboardList,
+  UserRound,
+  FileText,
+} from "lucide-react";
 
-import { Student } from "@/types/student";
+import StatsCard from "@/components/dashboard/StatsCard";
+import RecentStudents from "@/components/dashboard/RecentStudents";
 
-export default function StudentsPage() {
-  const [students, setStudents] = useState<Student[]>([]);
-  const [loading, setLoading] = useState(true);
+import { getStudents } from "@/services/studentService";
+import { getExams } from "@/services/examService";
 
-  const [search, setSearch] = useState("");
+export default function AdminPage() {
+  const [studentCount, setStudentCount] =
+    useState(0);
 
-  const [dialogOpen, setDialogOpen] = useState(false);
-
-  const [selectedStudent, setSelectedStudent] =
-    useState<Student | null>(null);
-
-  const [deleteDialogOpen, setDeleteDialogOpen] =
-    useState(false);
-
-  async function loadStudents() {
-    try {
-      const data = await getStudents();
-      setStudents(data);
-    } catch (error) {
-      console.error(error);
-      toast.error("Öğrenciler yüklenemedi.");
-    } finally {
-      setLoading(false);
-    }
-  }
+  const [examCount, setExamCount] =
+    useState(0);
 
   useEffect(() => {
-    loadStudents();
+    loadDashboard();
   }, []);
 
-  const filteredStudents = useMemo(() => {
-    const value = search.trim().toLowerCase();
-
-    if (!value) return students;
-
-    return students.filter((student) =>
-      [
-        student.name,
-        student.school,
-        student.phone,
-        student.parentName,
-      ]
-        .join(" ")
-        .toLowerCase()
-        .includes(value)
-    );
-  }, [students, search]);
-
-  function handleCreate() {
-    setSelectedStudent(null);
-    setDialogOpen(true);
-  }
-
-  function handleEdit(student: Student) {
-    setSelectedStudent(student);
-    setDialogOpen(true);
-  }
-
-  function handleDelete(student: Student) {
-    setSelectedStudent(student);
-    setDeleteDialogOpen(true);
-  }
-
-  async function confirmDelete() {
-    if (!selectedStudent?.id) return;
-
+  async function loadDashboard() {
     try {
-      await deleteStudent(selectedStudent.id);
+      const students = await getStudents();
+      const exams = await getExams();
 
-      toast.success("Öğrenci başarıyla silindi.");
-
-      setDeleteDialogOpen(false);
-      setSelectedStudent(null);
-
-      await loadStudents();
+      setStudentCount(students.length);
+      setExamCount(exams.length);
     } catch (error) {
       console.error(error);
-
-      toast.error(
-        "Öğrenci silinirken hata oluştu."
-      );
     }
   }
 
   return (
     <>
-      <div className="mb-8">
-        <h1 className="mb-6 text-4xl font-bold">
-          Öğrenciler
-        </h1>
+      <h1 className="mb-8 text-4xl font-bold">
+        Hoş Geldin Emre 👋
+      </h1>
 
-        <StudentToolbar
-          search={search}
-          onSearchChange={setSearch}
-          onCreate={handleCreate}
+      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+        <StatsCard
+          title="Toplam Öğrenci"
+          value={studentCount}
+          icon={<Users size={28} />}
+          color="bg-blue-600"
+        />
+
+        <StatsCard
+          title="Toplam Deneme"
+          value={examCount}
+          icon={<ClipboardList size={28} />}
+          color="bg-purple-600"
+        />
+
+        <StatsCard
+          title="Toplam Koç"
+          value={0}
+          icon={<UserRound size={28} />}
+          color="bg-green-600"
+        />
+
+        <StatsCard
+          title="Toplam Veli"
+          value={0}
+          icon={<FileText size={28} />}
+          color="bg-orange-600"
         />
       </div>
 
-      <StudentDialog
-        open={dialogOpen}
-        onOpenChange={(open) => {
-          setDialogOpen(open);
+      <div className="mt-8 grid gap-6 lg:grid-cols-2">
+        <RecentStudents />
 
-          if (!open) {
-            setSelectedStudent(null);
-          }
-        }}
-        student={selectedStudent}
-        onSuccess={() => {
-          setDialogOpen(false);
-          setSelectedStudent(null);
-          loadStudents();
-        }}
-      />
+        <div className="rounded-xl border bg-white p-6 shadow-sm">
+          <h2 className="mb-4 text-xl font-semibold">
+            Son Denemeler
+          </h2>
 
-      <DeleteStudentDialog
-        open={deleteDialogOpen}
-        onOpenChange={setDeleteDialogOpen}
-        onConfirm={confirmDelete}
-      />
-
-      {loading ? (
-        <div className="rounded-xl bg-white p-6 shadow">
-          Yükleniyor...
+          <p className="text-slate-500">
+            Yakında eklenecek...
+          </p>
         </div>
-      ) : (
-        <StudentTable
-          students={filteredStudents}
-          onDelete={handleDelete}
-          onEdit={handleEdit}
-        />
-      )}
+      </div>
     </>
   );
 }

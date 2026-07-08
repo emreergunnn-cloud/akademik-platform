@@ -2,22 +2,22 @@
 
 import { useEffect, useState } from "react";
 
-import { Student } from "@/types/student";
-import { getStudents } from "@/services/studentService";
+import { Exam } from "@/types/exam";
+import { getExams } from "@/services/examService";
 
-export default function RecentStudents() {
-  const [students, setStudents] = useState<Student[]>([]);
+export default function RecentExams() {
+  const [exams, setExams] = useState<Exam[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadStudents();
+    loadExams();
   }, []);
 
-  async function loadStudents() {
+  async function loadExams() {
     try {
-      const data = await getStudents();
+      const data = await getExams();
 
-      setStudents(data.slice(0, 5));
+      setExams(data.slice(0, 5));
     } catch (error) {
       console.error(error);
     } finally {
@@ -28,36 +28,36 @@ export default function RecentStudents() {
   return (
     <div className="rounded-xl border bg-white p-6 shadow-sm">
       <h2 className="mb-4 text-xl font-semibold">
-        Son Eklenen Öğrenciler
+        Son Denemeler
       </h2>
 
       {loading ? (
         <p className="text-slate-500">
           Yükleniyor...
         </p>
-      ) : students.length === 0 ? (
+      ) : exams.length === 0 ? (
         <p className="text-slate-500">
-          Henüz öğrenci bulunmuyor.
+          Henüz deneme bulunmuyor.
         </p>
       ) : (
         <div className="space-y-3">
-          {students.map((student) => (
+          {exams.map((exam) => (
             <div
-              key={student.id}
+              key={exam.id}
               className="flex items-center justify-between rounded-lg border p-3"
             >
               <div>
                 <p className="font-medium">
-                  {student.name}
+                  {exam.studentName}
                 </p>
 
                 <p className="text-sm text-slate-500">
-                  {student.school}
+                  {exam.examName}
                 </p>
               </div>
 
-              <span className="rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-700">
-                {student.className}
+              <span className="rounded-full bg-purple-100 px-3 py-1 text-sm text-purple-700">
+                {exam.totalNet} Net
               </span>
             </div>
           ))}

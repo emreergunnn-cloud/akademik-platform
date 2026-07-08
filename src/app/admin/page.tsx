@@ -2,16 +2,26 @@
 
 import { useEffect, useState } from "react";
 
-import { Users, ClipboardList, UserRound, FileText } from "lucide-react";
+import {
+  Users,
+  ClipboardList,
+  UserRound,
+  FileText,
+} from "lucide-react";
 
 import StatsCard from "@/components/dashboard/StatsCard";
+import RecentStudents from "@/components/dashboard/RecentStudents";
+import RecentExams from "@/components/dashboard/RecentExams";
 
 import { getStudents } from "@/services/studentService";
 import { getExams } from "@/services/examService";
 
 export default function AdminPage() {
-  const [studentCount, setStudentCount] = useState(0);
-  const [examCount, setExamCount] = useState(0);
+  const [studentCount, setStudentCount] =
+    useState(0);
+
+  const [examCount, setExamCount] =
+    useState(0);
 
   useEffect(() => {
     loadDashboard();
@@ -63,6 +73,11 @@ export default function AdminPage() {
           icon={<FileText size={28} />}
           color="bg-orange-600"
         />
+      </div>
+
+      <div className="mt-8 grid gap-6 lg:grid-cols-2">
+        <RecentStudents />
+        <RecentExams />
       </div>
     </>
   );
