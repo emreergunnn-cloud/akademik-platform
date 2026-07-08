@@ -3,6 +3,7 @@ import {
   collection,
   deleteDoc,
   doc,
+  getDoc,
   getDocs,
   orderBy,
   query,
@@ -25,7 +26,10 @@ export async function addStudent(student: Student) {
 
 // Öğrencileri Getir
 export async function getStudents(): Promise<Student[]> {
-  const q = query(studentsRef, orderBy("createdAt", "desc"));
+  const q = query(
+    studentsRef,
+    orderBy("createdAt", "desc")
+  );
 
   const snapshot = await getDocs(q);
 
@@ -33,6 +37,24 @@ export async function getStudents(): Promise<Student[]> {
     id: doc.id,
     ...(doc.data() as Omit<Student, "id">),
   }));
+}
+
+// Tek Öğrenci Getir
+export async function getStudentById(
+  id: string
+): Promise<Student | null> {
+  const studentDoc = await getDoc(
+    doc(db, "students", id)
+  );
+
+  if (!studentDoc.exists()) {
+    return null;
+  }
+
+  return {
+    id: studentDoc.id,
+    ...(studentDoc.data() as Omit<Student, "id">),
+  };
 }
 
 // Öğrenci Güncelle

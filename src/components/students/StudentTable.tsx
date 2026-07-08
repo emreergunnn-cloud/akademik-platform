@@ -1,6 +1,8 @@
 "use client";
 
-import { Pencil, Trash2 } from "lucide-react";
+import Link from "next/link";
+import { Eye, Pencil, Trash2 } from "lucide-react";
+
 import { Student } from "@/types/student";
 
 interface StudentTableProps {
@@ -66,16 +68,23 @@ export default function StudentTable({
 
               <td className="p-4">
                 <div className="flex justify-center gap-2">
+                  <Link
+                    href={`/admin/students/${student.id}`}
+                    className="rounded-lg bg-blue-600 p-2 text-white transition hover:bg-blue-700"
+                  >
+                    <Eye size={18} />
+                  </Link>
+
                   <button
                     onClick={() => onEdit(student)}
-                    className="rounded-lg bg-amber-500 p-2 text-white hover:bg-amber-600"
+                    className="rounded-lg bg-amber-500 p-2 text-white transition hover:bg-amber-600"
                   >
                     <Pencil size={18} />
                   </button>
 
                   <button
                     onClick={() => onDelete(student)}
-                    className="rounded-lg bg-red-600 p-2 text-white hover:bg-red-700"
+                    className="rounded-lg bg-red-600 p-2 text-white transition hover:bg-red-700"
                   >
                     <Trash2 size={18} />
                   </button>
