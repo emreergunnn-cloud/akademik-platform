@@ -12,22 +12,10 @@ export default function StudentBranchAnalysis({
   socialAverage,
 }: StudentBranchAnalysisProps) {
   const branches = [
-    {
-      name: "Türkçe",
-      value: turkishAverage,
-    },
-    {
-      name: "Matematik",
-      value: mathAverage,
-    },
-    {
-      name: "Fen",
-      value: scienceAverage,
-    },
-    {
-      name: "Sosyal",
-      value: socialAverage,
-    },
+    { name: "Türkçe", value: turkishAverage },
+    { name: "Matematik", value: mathAverage },
+    { name: "Fen", value: scienceAverage },
+    { name: "Sosyal", value: socialAverage },
   ];
 
   const strongest = [...branches].sort(

@@ -11,9 +11,10 @@ import { getStudentExams } from "@/services/examService";
 
 import StudentInfoCard from "@/components/students/profile/StudentInfoCard";
 import StudentStatsCard from "@/components/students/profile/StudentStatsCard";
+import StudentBranchStats from "@/components/students/profile/StudentBranchStats";
+import StudentBranchAnalysis from "@/components/students/profile/StudentBranchAnalysis";
 import StudentNetChart from "@/components/students/profile/StudentNetChart";
 import StudentExamHistory from "@/components/students/profile/StudentExamHistory";
-import StudentBranchStats from "@/components/students/profile/StudentBranchStats";
 
 export default function StudentProfilePage() {
   const { id } = useParams<{ id: string }>();
@@ -139,6 +140,15 @@ export default function StudentProfilePage() {
 
       <div className="mt-8">
         <StudentBranchStats
+          turkishAverage={turkishAverage}
+          mathAverage={mathAverage}
+          scienceAverage={scienceAverage}
+          socialAverage={socialAverage}
+        />
+      </div>
+
+      <div className="mt-8">
+        <StudentBranchAnalysis
           turkishAverage={turkishAverage}
           mathAverage={mathAverage}
           scienceAverage={scienceAverage}
