@@ -13,6 +13,7 @@ import StudentInfoCard from "@/components/students/profile/StudentInfoCard";
 import StudentStatsCard from "@/components/students/profile/StudentStatsCard";
 import StudentNetChart from "@/components/students/profile/StudentNetChart";
 import StudentExamHistory from "@/components/students/profile/StudentExamHistory";
+import StudentBranchStats from "@/components/students/profile/StudentBranchStats";
 
 export default function StudentProfilePage() {
   const { id } = useParams<{ id: string }>();
@@ -83,6 +84,38 @@ export default function StudentProfilePage() {
           ...exams.map((exam) => exam.totalNet)
         );
 
+  const turkishAverage =
+    totalExam === 0
+      ? 0
+      : exams.reduce(
+          (sum, exam) => sum + exam.turkish,
+          0
+        ) / totalExam;
+
+  const mathAverage =
+    totalExam === 0
+      ? 0
+      : exams.reduce(
+          (sum, exam) => sum + exam.math,
+          0
+        ) / totalExam;
+
+  const scienceAverage =
+    totalExam === 0
+      ? 0
+      : exams.reduce(
+          (sum, exam) => sum + exam.science,
+          0
+        ) / totalExam;
+
+  const socialAverage =
+    totalExam === 0
+      ? 0
+      : exams.reduce(
+          (sum, exam) => sum + exam.social,
+          0
+        ) / totalExam;
+
   return (
     <>
       <h1 className="mb-8 text-4xl font-bold">
@@ -101,6 +134,15 @@ export default function StudentProfilePage() {
           totalExam={totalExam}
           averageNet={averageNet}
           highestNet={highestNet}
+        />
+      </div>
+
+      <div className="mt-8">
+        <StudentBranchStats
+          turkishAverage={turkishAverage}
+          mathAverage={mathAverage}
+          scienceAverage={scienceAverage}
+          socialAverage={socialAverage}
         />
       </div>
 
