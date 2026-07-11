@@ -13,5 +13,7 @@ export interface Student {
 
   parentPhone: string;
 
+  targetNet: number;
+
   createdAt?: unknown;
 }

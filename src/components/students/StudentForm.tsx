@@ -25,6 +25,7 @@ const initialForm: Student = {
   phone: "",
   parentName: "",
   parentPhone: "",
+  targetNet: 0,
 };
 
 export default function StudentForm({
@@ -59,14 +60,15 @@ export default function StudentForm({
     e.preventDefault();
 
     if (
-      !form.name ||
-      !form.school ||
-      !form.className ||
-      !form.phone ||
-      !form.parentName ||
-      !form.parentPhone
-    ) {
-      toast.error("Lütfen tüm alanları doldurun.");
+  !form.name ||
+  !form.school ||
+  !form.className ||
+  !form.phone ||
+  !form.parentName ||
+  !form.parentPhone ||
+  form.targetNet <= 0
+) {
+      toast.error("Lütfen tüm alanları doldurun ve hedef net girin.");
       return;
     }
 
@@ -145,6 +147,18 @@ export default function StudentForm({
         value={form.parentPhone}
         onChange={handleChange}
       />
+      <Input
+  name="targetNet"
+  type="number"
+  placeholder="Hedef Net"
+  value={form.targetNet}
+  onChange={(e) =>
+    setForm((prev) => ({
+      ...prev,
+      targetNet: Number(e.target.value),
+    }))
+  }
+/>
 
       <Button
         type="submit"

@@ -35,6 +35,7 @@ export default function StudentTable({
             <th className="p-4 text-left">Okul</th>
             <th className="p-4 text-left">Sınıf</th>
             <th className="p-4 text-left">Telefon</th>
+            <th className="p-4 text-left">Hedef Net</th>
             <th className="p-4 text-left">Veli</th>
             <th className="p-4 text-center">İşlemler</th>
           </tr>
@@ -60,6 +61,10 @@ export default function StudentTable({
 
               <td className="p-4">
                 {student.phone}
+              </td>
+
+              <td className="p-4">
+                {student.targetNet}
               </td>
 
               <td className="p-4">

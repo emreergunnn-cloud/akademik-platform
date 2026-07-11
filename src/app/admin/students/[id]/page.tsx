@@ -13,8 +13,10 @@ import StudentInfoCard from "@/components/students/profile/StudentInfoCard";
 import StudentStatsCard from "@/components/students/profile/StudentStatsCard";
 import StudentBranchStats from "@/components/students/profile/StudentBranchStats";
 import StudentBranchAnalysis from "@/components/students/profile/StudentBranchAnalysis";
+import StudentPerformanceSummary from "@/components/students/profile/StudentPerformanceSummary";
 import StudentNetChart from "@/components/students/profile/StudentNetChart";
 import StudentExamHistory from "@/components/students/profile/StudentExamHistory";
+import StudentTargetProgress from "@/components/students/profile/StudentTargetProgress";
 
 export default function StudentProfilePage() {
   const { id } = useParams<{ id: string }>();
@@ -154,6 +156,21 @@ export default function StudentProfilePage() {
           scienceAverage={scienceAverage}
           socialAverage={socialAverage}
         />
+      </div>
+
+      <div className="mt-8">
+        <StudentPerformanceSummary
+          averageNet={averageNet}
+          highestNet={highestNet}
+          totalExam={totalExam}
+        />
+      </div>
+
+      <div className="mt-8">
+        <StudentTargetProgress
+        averageNet={averageNet}
+        targetNet={student.targetNet}
+      />
       </div>
 
       <div className="mt-8">
