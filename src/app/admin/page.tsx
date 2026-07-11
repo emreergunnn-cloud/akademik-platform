@@ -23,21 +23,68 @@ export default function AdminPage() {
   const [examCount, setExamCount] =
     useState(0);
 
+  const [averageNet, setAverageNet] =
+    useState(0);
+
+  const [closestStudent, setClosestStudent] =
+    useState("-");
+
   useEffect(() => {
     loadDashboard();
   }, []);
 
   async function loadDashboard() {
-    try {
-      const students = await getStudents();
-      const exams = await getExams();
+  try {
+    const students = await getStudents();
+    const exams = await getExams();
 
-      setStudentCount(students.length);
-      setExamCount(exams.length);
-    } catch (error) {
-      console.error(error);
+    setStudentCount(students.length);
+    setExamCount(exams.length);
+
+    if (exams.length > 0) {
+      const avg =
+        exams.reduce(
+          (sum, exam) => sum + exam.totalNet,
+          0
+        ) / exams.length;
+
+      setAverageNet(avg);
     }
+
+    let bestStudent = "-";
+    let bestPercent = -1;
+
+    students.forEach((student) => {
+      const studentExams = exams.filter(
+        (exam) => exam.studentId === student.id
+      );
+
+      if (
+        studentExams.length === 0 ||
+        !student.targetNet
+      )
+        return;
+
+      const avg =
+        studentExams.reduce(
+          (sum, exam) => sum + exam.totalNet,
+          0
+        ) / studentExams.length;
+
+      const percent =
+        (avg / student.targetNet) * 100;
+
+      if (percent > bestPercent) {
+        bestPercent = percent;
+        bestStudent = student.name;
+      }
+    });
+
+    setClosestStudent(bestStudent);
+  } catch (error) {
+    console.error(error);
   }
+}
 
   return (
     <>
@@ -74,6 +121,22 @@ export default function AdminPage() {
           color="bg-orange-600"
         />
       </div>
+
+      <div className="mt-6 grid gap-6 md:grid-cols-2">
+  <StatsCard
+    title="Ortalama Net"
+    value={averageNet.toFixed(2)}
+    icon={<ClipboardList size={28} />}
+    color="bg-cyan-600"
+  />
+
+  <StatsCard
+    title="Hedefe En Yakın"
+    value={closestStudent}
+    icon={<Users size={28} />}
+    color="bg-emerald-600"
+  />
+</div>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-2">
         <RecentStudents />

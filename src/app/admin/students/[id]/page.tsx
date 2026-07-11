@@ -17,6 +17,7 @@ import StudentPerformanceSummary from "@/components/students/profile/StudentPerf
 import StudentNetChart from "@/components/students/profile/StudentNetChart";
 import StudentExamHistory from "@/components/students/profile/StudentExamHistory";
 import StudentTargetProgress from "@/components/students/profile/StudentTargetProgress";
+import StudentPerformanceTrend from "@/components/students/profile/StudentPerformanceTrend";
 
 export default function StudentProfilePage() {
   const { id } = useParams<{ id: string }>();
@@ -171,6 +172,10 @@ export default function StudentProfilePage() {
         averageNet={averageNet}
         targetNet={student.targetNet}
       />
+      </div>
+
+      <div className="mt-8">
+        <StudentPerformanceTrend exams={exams} />
       </div>
 
       <div className="mt-8">
