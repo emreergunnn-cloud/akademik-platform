@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+
+import { login } from "@/services/authService";
+import { getUserById } from "@/services/userService";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -11,54 +12,63 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
-  const handleLogin = async (e: React.FormEvent) => {
+  async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    setLoading(true);
-    setError("");
+    console.log("FORM SUBMIT ÇALIŞTI");
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      setLoading(true);
 
-      alert("Giriş başarılı ✅");
+      const firebaseUser = await login(email, password);
 
-      router.push("/admin");
-    } catch (err: any) {
-      switch (err.code) {
-        case "auth/invalid-credential":
-          setError("E-posta veya şifre yanlış.");
+      console.log("AUTH USER:", firebaseUser);
+
+      const user = await getUserById(firebaseUser.uid);
+
+      console.log("FIRESTORE USER:", user);
+
+      if (!user) {
+        alert("Firestore'da kullanıcı bulunamadı.");
+        return;
+      }
+
+      switch (user.role) {
+        case "superadmin":
+        case "admin":
+        case "secretary":
+        case "coach":
+          router.push("/admin");
           break;
 
-        case "auth/user-not-found":
-          setError("Kullanıcı bulunamadı.");
+        case "parent":
+          router.push("/parent");
           break;
 
-        case "auth/wrong-password":
-          setError("Şifre yanlış.");
-          break;
-
-        case "auth/invalid-email":
-          setError("Geçersiz e-posta.");
+        case "student":
+          router.push("/student");
           break;
 
         default:
-          setError("Giriş yapılamadı.");
+          alert("Yetkiniz bulunmuyor.");
       }
+    } catch (err) {
+      console.error(err);
+      alert("Giriş başarısız.");
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
-  };
+  }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-slate-100">
+    <div className="flex min-h-screen items-center justify-center bg-slate-100">
       <form
         onSubmit={handleLogin}
-        className="bg-white p-8 rounded-xl shadow-lg w-full max-w-md"
+        className="w-full max-w-md rounded-xl bg-white p-8 shadow-lg"
       >
-        <h1 className="text-3xl font-bold mb-6 text-center">
-          Akademik Platform
+        <h1 className="mb-6 text-center text-3xl font-bold">
+          Giriş Yap
         </h1>
 
         <input
@@ -66,31 +76,27 @@ export default function LoginPage() {
           placeholder="E-posta"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full border rounded-lg px-4 py-3 mb-4"
+          className="w-full rounded border p-3"
         />
+
+        <div className="h-4" />
 
         <input
           type="password"
           placeholder="Şifre"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full border rounded-lg px-4 py-3 mb-4"
+          className="w-full rounded border p-3"
         />
-
-        {error && (
-          <p className="text-red-600 text-sm mb-4">
-            {error}
-          </p>
-        )}
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg transition"
+          className="mt-6 w-full rounded bg-blue-600 py-3 font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
         >
           {loading ? "Giriş Yapılıyor..." : "Giriş Yap"}
         </button>
       </form>
-    </main>
+    </div>
   );
 }

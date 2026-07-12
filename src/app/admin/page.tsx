@@ -12,9 +12,11 @@ import {
 import StatsCard from "@/components/dashboard/StatsCard";
 import RecentStudents from "@/components/dashboard/RecentStudents";
 import RecentExams from "@/components/dashboard/RecentExams";
-
-import { getStudents } from "@/services/studentService";
-import { getExams } from "@/services/examService";
+import TopStudents from "@/components/dashboard/TopStudents";
+import { getDashboardData } from "@/services/dashboardService";
+import TopImprovedStudents from "@/components/dashboard/TopImprovedStudents";
+import AverageNetChart from "@/components/dashboard/AverageNetChart";
+import BranchNetChart from "@/components/dashboard/BranchNetChart";
 
 export default function AdminPage() {
   const [studentCount, setStudentCount] =
@@ -26,8 +28,42 @@ export default function AdminPage() {
   const [averageNet, setAverageNet] =
     useState(0);
 
-  const [closestStudent, setClosestStudent] =
+  const [topStudent, setTopStudent] =
     useState("-");
+
+    const [branchNetChart, setBranchNetChart] =
+  useState<
+    {
+      branch: string;
+      average: number;
+    }[]
+  >([]);
+
+  const [averageNetChart, setAverageNetChart] =
+  useState<
+    {
+      examName: string;
+      averageNet: number;
+    }[]
+  >([]);
+
+  const [topStudents, setTopStudents] =
+  useState<
+    {
+      id?: string;
+      name: string;
+      averageNet: number;
+    }[]
+  >([]);  
+
+  const [topImprovedStudents, setTopImprovedStudents] =
+  useState<
+    {
+      id?: string;
+      name: string;
+      improvement: number;
+    }[]
+  >([]);
 
   useEffect(() => {
     loadDashboard();
@@ -35,52 +71,43 @@ export default function AdminPage() {
 
   async function loadDashboard() {
   try {
-    const students = await getStudents();
-    const exams = await getExams();
+    const dashboard =
+      await getDashboardData();
 
-    setStudentCount(students.length);
-    setExamCount(exams.length);
+    setStudentCount(
+      dashboard.students.length
+    );
 
-    if (exams.length > 0) {
-      const avg =
-        exams.reduce(
-          (sum, exam) => sum + exam.totalNet,
-          0
-        ) / exams.length;
+    setExamCount(
+      dashboard.exams.length
+    );
 
-      setAverageNet(avg);
-    }
+    setAverageNet(
+      dashboard.averageNet
+    );
 
-    let bestStudent = "-";
-    let bestPercent = -1;
+    setTopStudent(
+      dashboard.topStudents.length > 0
+        ? dashboard.topStudents[0].name
+        : "-"
+    );
 
-    students.forEach((student) => {
-      const studentExams = exams.filter(
-        (exam) => exam.studentId === student.id
-      );
+    setTopStudents(
+      dashboard.topStudents
+    );
 
-      if (
-        studentExams.length === 0 ||
-        !student.targetNet
-      )
-        return;
+    setTopImprovedStudents(
+      dashboard.topImprovedStudents
+    );
 
-      const avg =
-        studentExams.reduce(
-          (sum, exam) => sum + exam.totalNet,
-          0
-        ) / studentExams.length;
+    setAverageNetChart(
+      dashboard.averageNetChart
+    );
 
-      const percent =
-        (avg / student.targetNet) * 100;
+    setBranchNetChart(
+      dashboard.branchNetChart
+    );
 
-      if (percent > bestPercent) {
-        bestPercent = percent;
-        bestStudent = student.name;
-      }
-    });
-
-    setClosestStudent(bestStudent);
   } catch (error) {
     console.error(error);
   }
@@ -123,25 +150,47 @@ export default function AdminPage() {
       </div>
 
       <div className="mt-6 grid gap-6 md:grid-cols-2">
-  <StatsCard
-    title="Ortalama Net"
-    value={averageNet.toFixed(2)}
-    icon={<ClipboardList size={28} />}
-    color="bg-cyan-600"
+        <StatsCard
+          title="Platform Ortalama Net"
+          value={averageNet.toFixed(2)}
+          icon={<ClipboardList size={28} />}
+          color="bg-cyan-600"
+        />
+
+        <StatsCard
+          title="En Başarılı Öğrenci"
+          value={topStudent}
+          icon={<Users size={28} />}
+          color="bg-emerald-600"
+        />
+      </div>
+
+      <div className="mt-8 grid gap-6 lg:grid-cols-2">
+  <RecentStudents />
+  <RecentExams />
+</div>
+
+<div className="mt-8 grid gap-6 lg:grid-cols-2">
+  <TopStudents
+    students={topStudents}
   />
 
-  <StatsCard
-    title="Hedefe En Yakın"
-    value={closestStudent}
-    icon={<Users size={28} />}
-    color="bg-emerald-600"
+  <TopImprovedStudents
+    students={topImprovedStudents}
   />
 </div>
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-2">
-        <RecentStudents />
-        <RecentExams />
-      </div>
+<div className="mt-8">
+  <AverageNetChart
+    data={averageNetChart}
+  />
+</div>
+
+<div className="mt-8">
+  <BranchNetChart
+    data={branchNetChart}
+  />
+</div>
     </>
   );
 }

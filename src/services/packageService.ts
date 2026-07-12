@@ -10,43 +10,44 @@ import {
 } from "firebase/firestore";
 
 import { db } from "@/lib/firebase";
-import { Coach } from "@/types/coach";
+import { Package } from "@/types/package";
 
-const coachesRef = collection(db, "coaches");
+const packagesRef =
+  collection(db, "packages");
 
-// Koç Ekle
-export async function addCoach(
-  coach: Coach
+// Paket Ekle
+export async function addPackage(
+  packageData: Package
 ) {
-  await addDoc(coachesRef, {
-    ...coach,
+  await addDoc(packagesRef, {
+    ...packageData,
     createdAt: serverTimestamp(),
   });
 }
 
-// Tüm Koçlar
-export async function getCoaches(): Promise<
-  Coach[]
+// Paketler
+export async function getPackages(): Promise<
+  Package[]
 > {
   const snapshot = await getDocs(
-    coachesRef
+    packagesRef
   );
 
   return snapshot.docs.map((doc) => ({
     id: doc.id,
     ...(doc.data() as Omit<
-      Coach,
+      Package,
       "id"
     >),
   }));
 }
 
-// Tek Koç
-export async function getCoachById(
+// Tek Paket
+export async function getPackageById(
   id: string
-): Promise<Coach | null> {
+): Promise<Package | null> {
   const snapshot = await getDoc(
-    doc(db, "coaches", id)
+    doc(db, "packages", id)
   );
 
   if (!snapshot.exists()) {
@@ -56,28 +57,28 @@ export async function getCoachById(
   return {
     id: snapshot.id,
     ...(snapshot.data() as Omit<
-      Coach,
+      Package,
       "id"
     >),
   };
 }
 
 // Güncelle
-export async function updateCoach(
+export async function updatePackage(
   id: string,
-  coach: Partial<Coach>
+  packageData: Partial<Package>
 ) {
   await updateDoc(
-    doc(db, "coaches", id),
-    coach
+    doc(db, "packages", id),
+    packageData
   );
 }
 
 // Sil
-export async function deleteCoach(
+export async function deletePackage(
   id: string
 ) {
   await deleteDoc(
-    doc(db, "coaches", id)
+    doc(db, "packages", id)
   );
 }

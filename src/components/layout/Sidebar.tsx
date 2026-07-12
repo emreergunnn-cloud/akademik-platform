@@ -7,6 +7,7 @@ import {
   GraduationCap,
   Users,
   ClipboardList,
+  UserRound,
   Calendar,
   Settings,
 } from "lucide-react";
@@ -31,6 +32,11 @@ export default function Sidebar() {
       icon: Users,
     },
     {
+      title: "Veliler",
+      href: "/admin/parents",
+      icon: UserRound,
+    },
+    {
       title: "Denemeler",
       href: "/admin/exams",
       icon: ClipboardList,
@@ -48,9 +54,8 @@ export default function Sidebar() {
   ];
 
   return (
-    <aside className="w-64 bg-slate-900 text-white min-h-screen p-6">
-
-      <h1 className="text-2xl font-bold mb-10">
+    <aside className="min-h-screen w-64 bg-slate-900 p-6 text-white">
+      <h1 className="mb-10 text-2xl font-bold">
         Akademik Platform
       </h1>
 
@@ -58,18 +63,23 @@ export default function Sidebar() {
         {menus.map((menu) => {
           const Icon = menu.icon;
 
+          const active =
+            pathname === menu.href ||
+            (menu.href !== "/admin" &&
+              pathname.startsWith(menu.href));
+
           return (
             <Link
               key={menu.href}
               href={menu.href}
               className={`flex items-center gap-3 rounded-lg p-3 transition ${
-                pathname === menu.href
+                active
                   ? "bg-blue-600"
                   : "hover:bg-slate-800"
               }`}
             >
               <Icon size={20} />
-              {menu.title}
+              <span>{menu.title}</span>
             </Link>
           );
         })}

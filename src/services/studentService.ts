@@ -73,3 +73,40 @@ export async function deleteStudent(id: string) {
 
   await deleteDoc(studentDoc);
 }
+
+// ===============================
+// V2 - Öğrenci Kayıt Modeli
+// ===============================
+
+export interface CreateStudentPayload {
+  student: Student;
+
+  parentId: string;
+
+  coachId?: string;
+
+  packageId?: string;
+
+  userId: string;
+}
+
+export async function createStudent(
+  payload: CreateStudentPayload
+) {
+  return await addDoc(
+  studentsRef,
+  {
+    ...payload.student,
+
+    parentId: payload.parentId,
+
+    coachId: payload.coachId ?? null,
+
+    packageId:
+      payload.packageId ?? null,
+
+    userId: payload.userId,
+
+    createdAt: serverTimestamp(),
+  });
+}

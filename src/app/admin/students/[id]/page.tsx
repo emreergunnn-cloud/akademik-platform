@@ -18,6 +18,12 @@ import StudentNetChart from "@/components/students/profile/StudentNetChart";
 import StudentExamHistory from "@/components/students/profile/StudentExamHistory";
 import StudentTargetProgress from "@/components/students/profile/StudentTargetProgress";
 import StudentPerformanceTrend from "@/components/students/profile/StudentPerformanceTrend";
+import StudentAiAnalysis from "@/components/students/profile/StudentAiAnalysis";
+import StudentLastExamCard from "@/components/students/profile/StudentLastExamCard";
+import StudentPredictionCard from "@/components/students/profile/StudentPredictionCard";
+import StudentReportPDF from "@/components/students/profile/StudentReportPDF";
+import StudentTaskCard from "@/components/students/profile/StudentTaskCard";
+import StudyPlanCard from "@/components/students/profile/StudyPlanCard";
 
 export default function StudentProfilePage() {
   const { id } = useParams<{ id: string }>();
@@ -122,9 +128,16 @@ export default function StudentProfilePage() {
 
   return (
     <>
-      <h1 className="mb-8 text-4xl font-bold">
-        {student.name}
-      </h1>
+      <div className="mb-8 flex items-center justify-between">
+  <h1 className="text-4xl font-bold">
+    {student.name}
+  </h1>
+
+  <StudentReportPDF
+    student={student}
+    exams={exams}
+  />
+</div>
 
       <div className="grid gap-6 md:grid-cols-2">
         <StudentInfoCard
@@ -175,8 +188,42 @@ export default function StudentProfilePage() {
       </div>
 
       <div className="mt-8">
+  <StudentPredictionCard
+    averageNet={averageNet}
+    targetNet={student.targetNet ?? 0}
+  />
+</div>
+
+      <div className="mt-8">
         <StudentPerformanceTrend exams={exams} />
       </div>
+
+      <div className="mt-8">
+        <StudentAiAnalysis
+  averageNet={averageNet}
+  highestNet={highestNet}
+  totalExam={totalExam}
+  exams={exams}
+/>
+      </div>
+
+      <div className="mt-8">
+  <StudentLastExamCard
+    exams={exams}
+  />
+</div>
+
+<div className="mt-8">
+  <StudentTaskCard
+    studentId={student.id!}
+  />
+</div>
+
+<div className="mt-8">
+  <StudyPlanCard
+    studentId={student.id!}
+  />
+</div>
 
       <div className="mt-8">
         <StudentNetChart exams={exams} />

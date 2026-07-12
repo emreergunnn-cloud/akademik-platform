@@ -18,13 +18,11 @@ interface StudentFormProps {
   onSuccess?: () => void;
 }
 
-const initialForm: Student = {
+const initialStudent: Student = {
   name: "",
   school: "",
   className: "",
   phone: "",
-  parentName: "",
-  parentPhone: "",
   targetNet: 0,
 };
 
@@ -34,21 +32,27 @@ export default function StudentForm({
 }: StudentFormProps) {
   const [loading, setLoading] = useState(false);
 
-  const [form, setForm] =
-    useState<Student>(initialForm);
+  const [studentForm, setStudentForm] =
+    useState<Student>(initialStudent);
+
+  const [parentName, setParentName] =
+    useState("");
+
+  const [parentPhone, setParentPhone] =
+    useState("");
 
   useEffect(() => {
     if (student) {
-      setForm(student);
+      setStudentForm(student);
     } else {
-      setForm(initialForm);
+      setStudentForm(initialStudent);
     }
   }, [student]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
-    setForm((prev) => ({
+    setStudentForm((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
     }));
@@ -60,36 +64,43 @@ export default function StudentForm({
     e.preventDefault();
 
     if (
-  !form.name ||
-  !form.school ||
-  !form.className ||
-  !form.phone ||
-  !form.parentName ||
-  !form.parentPhone ||
-  form.targetNet <= 0
-) {
-      toast.error("Lütfen tüm alanları doldurun ve hedef net girin.");
+      !studentForm.name ||
+      !studentForm.school ||
+      !studentForm.className ||
+      !studentForm.phone ||
+      !parentName ||
+      !parentPhone ||
+      studentForm.targetNet <= 0
+    ) {
+      toast.error(
+        "Lütfen tüm alanları doldurun ve hedef net girin."
+      );
       return;
     }
 
     try {
       setLoading(true);
 
-      if (form.id) {
-        await updateStudent(form.id, form);
+      if (studentForm.id) {
+        await updateStudent(
+          studentForm.id,
+          studentForm
+        );
 
         toast.success(
           "Öğrenci başarıyla güncellendi."
         );
       } else {
-        await addStudent(form);
+        await addStudent(studentForm);
 
         toast.success(
           "Öğrenci başarıyla eklendi."
         );
       }
 
-      setForm(initialForm);
+      setStudentForm(initialStudent);
+      setParentName("");
+      setParentPhone("");
 
       onSuccess?.();
     } catch (error) {
@@ -109,56 +120,59 @@ export default function StudentForm({
       <Input
         name="name"
         placeholder="Ad Soyad"
-        value={form.name}
+        value={studentForm.name}
         onChange={handleChange}
       />
 
       <Input
         name="school"
         placeholder="Okul"
-        value={form.school}
+        value={studentForm.school}
         onChange={handleChange}
       />
 
       <Input
         name="className"
         placeholder="Sınıf"
-        value={form.className}
+        value={studentForm.className}
         onChange={handleChange}
       />
 
       <Input
         name="phone"
         placeholder="Telefon"
-        value={form.phone}
+        value={studentForm.phone}
         onChange={handleChange}
       />
 
       <Input
-        name="parentName"
         placeholder="Veli Adı"
-        value={form.parentName}
-        onChange={handleChange}
+        value={parentName}
+        onChange={(e) =>
+          setParentName(e.target.value)
+        }
       />
 
       <Input
-        name="parentPhone"
         placeholder="Veli Telefonu"
-        value={form.parentPhone}
-        onChange={handleChange}
+        value={parentPhone}
+        onChange={(e) =>
+          setParentPhone(e.target.value)
+        }
       />
+
       <Input
-  name="targetNet"
-  type="number"
-  placeholder="Hedef Net"
-  value={form.targetNet}
-  onChange={(e) =>
-    setForm((prev) => ({
-      ...prev,
-      targetNet: Number(e.target.value),
-    }))
-  }
-/>
+        name="targetNet"
+        type="number"
+        placeholder="Hedef Net"
+        value={studentForm.targetNet}
+        onChange={(e) =>
+          setStudentForm((prev) => ({
+            ...prev,
+            targetNet: Number(e.target.value),
+          }))
+        }
+      />
 
       <Button
         type="submit"
@@ -167,7 +181,7 @@ export default function StudentForm({
       >
         {loading
           ? "Kaydediliyor..."
-          : form.id
+          : studentForm.id
           ? "Güncelle"
           : "Öğrenciyi Kaydet"}
       </Button>

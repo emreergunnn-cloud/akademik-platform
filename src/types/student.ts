@@ -1,6 +1,14 @@
 export interface Student {
   id?: string;
 
+  userId?: string;
+
+  parentId?: string;
+
+  coachId?: string;
+
+  packageId?: string;
+
   name: string;
 
   school: string;
@@ -8,10 +16,6 @@ export interface Student {
   className: string;
 
   phone: string;
-
-  parentName: string;
-
-  parentPhone: string;
 
   targetNet: number;
 
