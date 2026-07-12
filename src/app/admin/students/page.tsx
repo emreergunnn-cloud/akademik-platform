@@ -56,9 +56,7 @@ export default function StudentsPage() {
         student.school
           .toLowerCase()
           .includes(value.toLowerCase()) ||
-        student.parentName
-          .toLowerCase()
-          .includes(value.toLowerCase())
+        false
       );
     });
 

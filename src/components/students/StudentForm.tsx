@@ -3,10 +3,8 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-import {
-  addStudent,
-  updateStudent,
-} from "@/services/studentService";
+import { updateStudent } from "@/services/studentService";
+import { registerStudent } from "@/services/registerStudentService";
 
 import { Student } from "@/types/student";
 
@@ -46,21 +44,26 @@ export default function StudentForm({
       setStudentForm(student);
     } else {
       setStudentForm(initialStudent);
+      setParentName("");
+      setParentPhone("");
     }
   }, [student]);
 
-  const handleChange = (
+  function handleChange(
     e: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  ) {
     setStudentForm((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [e.target.name]:
+        e.target.name === "targetNet"
+          ? Number(e.target.value)
+          : e.target.value,
     }));
-  };
+  }
 
-  const handleSubmit = async (
+  async function handleSubmit(
     e: React.FormEvent
-  ) => {
+  ) {
     e.preventDefault();
 
     if (
@@ -72,9 +75,7 @@ export default function StudentForm({
       !parentPhone ||
       studentForm.targetNet <= 0
     ) {
-      toast.error(
-        "Lütfen tüm alanları doldurun ve hedef net girin."
-      );
+      toast.error("Tüm alanları doldurun.");
       return;
     }
 
@@ -88,13 +89,44 @@ export default function StudentForm({
         );
 
         toast.success(
-          "Öğrenci başarıyla güncellendi."
+          "Öğrenci güncellendi."
         );
       } else {
-        await addStudent(studentForm);
+        const studentMail =
+          studentForm.phone.replace(/\D/g, "") +
+          "@student.local";
+
+        const parentMail =
+          parentPhone.replace(/\D/g, "") +
+          "@parent.local";
+
+        await registerStudent({
+          student: studentForm,
+
+          parent: {
+            name: parentName,
+            phone: parentPhone,
+            studentId: "",
+            studentName: studentForm.name,
+            email: parentMail,
+            password: "123456",
+          },
+
+          studentUser: {
+  name: studentForm.name,
+  email: studentMail,
+  role: "student",
+},
+
+          parentUser: {
+  name: parentName,
+  email: parentMail,
+  role: "parent",
+},
+        });
 
         toast.success(
-          "Öğrenci başarıyla eklendi."
+          "Öğrenci başarıyla oluşturuldu."
         );
       }
 
@@ -103,14 +135,13 @@ export default function StudentForm({
       setParentPhone("");
 
       onSuccess?.();
-    } catch (error) {
-      console.error(error);
-
-      toast.error("Bir hata oluştu.");
+    } catch (err) {
+      console.error(err);
+      toast.error("Kayıt oluşturulamadı.");
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   return (
     <form
@@ -166,12 +197,7 @@ export default function StudentForm({
         type="number"
         placeholder="Hedef Net"
         value={studentForm.targetNet}
-        onChange={(e) =>
-          setStudentForm((prev) => ({
-            ...prev,
-            targetNet: Number(e.target.value),
-          }))
-        }
+        onChange={handleChange}
       />
 
       <Button
